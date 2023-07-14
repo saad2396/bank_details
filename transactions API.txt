@@ -1,0 +1,933 @@
+import json
+import requests
+import random
+import string
+
+# Store the JSON data in a variable
+json_data = {
+"users": [
+        {
+            "user_id": "US001",
+            "user_name": "Vivek kaushal",
+            "bank_details": {
+                "account_number": "511121457896",
+                "mobile_number": "9014028844",
+                "bank": "ICICI Bank",
+                "ifsc_code": "ICICI00014",
+                "balance": 17300.0,
+                "credit_card_number":"**** **** **** 3456",
+                "debit_card_number":"**** **** **** 7541",
+                "accounts": [
+                    {
+                        "account_name": "Current Account",
+                        "balance": 10000.0
+                    },
+                    {
+                        "account_name": "Savings Account",
+                        "balance": 7300.0
+                    }
+                ]
+            },
+            "sub_users": [
+                {
+                    "sub_user_id": "SB001",
+                    "sub_user_name": "Abhi goswami",
+                    "bank_details": {
+                        "account_number": "5111211236987",
+                        "mobile_number": "8745632101",
+                        "bank": "ICICI Bank",
+                        "ifsc_code": "ICICI00015",
+                        "balance": 2000.0
+                    }
+                },
+                {
+                    "sub_user_id": "SB002",
+                    "sub_user_name": "Abhi goud",
+                    "bank_details": {
+                        "account_number": "511121789654",
+                        "balance": 2000.0,
+                        "mobile_number": "8106128302",
+                        "ifsc_code": "SBIIN00089",
+                        "bank": "SBI Bank"
+                    }
+                },
+                {
+                    "sub_user_id": "SB003",
+                    "sub_user_name": "Zahid Hussain",
+                    "bank_details": {
+                        "account_number": "511121741258",
+                        "balance": 1000.0,
+                        "mobile_number": "8523697410",
+                        "bank": "SBI Bank",
+                        "ifsc_code": "SBIIN00021"
+                    }
+                }
+            ]
+        },
+        {
+            "user_id": "US002",
+            "user_name": "Mukund kumar",
+            "bank_details": {
+                "account_number": "511121789654",
+                "mobile_number": "9980138059",
+                "bank": "HDFC Bank",
+                "ifsc_code": "HDFC00051",
+                "balance": 7700.0,
+                "credit_card_number":"**** **** **** 7854",
+                "debit_card_number":"**** **** **** 8712"
+            },
+            "sub_users": [
+                {
+                    "sub_user_id": "SB001",
+                    "sub_user_name": "Nehal deharikar",
+                    "bank_details": {
+                        "account_number": "511121741258",
+                        "balance": 1000.0,
+                        "mobile_number": "8796541230",
+                        "bank": "ICICI Bank",
+                        "ifsc_code": "ICICI00021"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+
+def view_updated_data(user_name, view_option='4'):
+    # Load the data from the JSON variable or initialize if not available
+    if 'json_data' not in globals():
+        json_data = {"users": []}
+    else:
+        json_data = globals()['json_data']
+
+    # Find the user with the given user name
+    user_found = False
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            user_found = True
+            result = []
+
+            # Ask the user which details to view
+            if view_option == '1':
+                # View only the user's details
+                user_details = {
+                    "User ID": user['user_id'],
+                    "User Name": user['user_name'],
+                    "Bank Details": {
+                        "Account Number": user['bank_details']['account_number'],
+                        "Mobile Number": user['bank_details']['mobile_number'],
+                        "Bank": user['bank_details']['bank'],
+                        "IFSC Code": user['bank_details']['ifsc_code'],
+                        "Balance": user['bank_details']['balance']
+                    }
+                }
+
+                # Store the response in variables
+                updated_data = user_details
+                result.append(updated_data)
+
+            elif view_option == '2':
+                # View the sub-user details if available
+                sub_users = user.get('sub_users', [])
+                if sub_users:
+                    for sub_user in sub_users:
+                        sub_user_details = {
+                            "Sub User ID": sub_user['sub_user_id'],
+                            "Sub User Name": sub_user['sub_user_name'],
+                            "Bank Details": {
+                                "Account Number": sub_user['bank_details']['account_number'],
+                                "Mobile Number": sub_user['bank_details']['mobile_number'],
+                                "Bank": sub_user['bank_details']['bank'],
+                                "IFSC Code": sub_user['bank_details']['ifsc_code'],
+                                "Balance": sub_user['bank_details']['balance']
+                            }
+                        }
+
+                        # Store the response in variables
+                        updated_data = sub_user_details
+                        result.append(updated_data)
+
+                else:
+                    # Store the response in variables
+                    updated_data = "No sub users found."
+                    result.append(updated_data)
+
+            elif view_option == '3':
+                # View the complete details
+                updated_data = user
+
+                # Store the response in variables
+                result.append(updated_data)
+
+            elif view_option == '4':
+                # Store the updated values for later use if not already stored
+                if 'updated_data' not in globals():
+                    updated_data = {
+                        "Name": user['user_name'],
+                        "Account Number": user['bank_details']['account_number'],
+                        "Balance": user['bank_details']['balance']
+                    }
+                # Store the response in variables
+                result.append(updated_data)
+
+            else:
+                # Store the error message in a variable
+                error_message = "Invalid option. Please enter a valid option."
+                result.append(error_message)
+
+            # Return the response variables
+            return result
+
+    # If the user is not found, store the error message in a variable
+    if not user_found:
+        error_message = f"No user found with the name '{user_name}'."
+        return [error_message]
+
+# def self_transfer(user_name, amount, from_bank, to_bank):
+#     # Load the data from the JSON variable or initialize if not available
+#     if 'json_data' not in globals():
+#         json_data = {"users": []}
+#     else:
+#         json_data = globals()['json_data']
+
+#     # Find the user with the given user name
+#     user_found = False
+#     for user in json_data['users']:
+#         if user['user_name'] == user_name:
+#             user_found = True
+#             bank_details = user.get('bank_details')
+
+#             # Check if bank details are available for the user
+#             if bank_details:
+#                 balance = bank_details.get('balance')
+
+#                 # Check if balance is available and sufficient for the transfer
+#                 if balance is not None and isinstance(balance, (int, float)):
+#                     if amount > 0 and amount <= balance:
+#                         # Deduct the amount from the balance
+#                         bank_details['balance'] -= amount
+
+#                         # Update the JSON data
+#                         globals()['json_data'] = json_data
+
+#                         # Calculate remaining balance
+#                         remaining_balance = bank_details['balance']
+
+#                         # Prepare the response variables
+#                         success_message = f"Successfully transferred amount {amount} from '{from_bank}' to {to_bank} of {user_name}."
+#                         remaining_balance_message = "Remaining balance is: " + str(remaining_balance)
+
+#                         # Return the response variables
+#                         return success_message, remaining_balance_message
+                        
+#                     else:
+#                         error_message = "Invalid amount. The amount must be positive and less than or equal to the available balance."
+#                         return error_message
+#                 else:
+#                     error_message = "Invalid balance. The balance must be a numeric value."
+#                     return error_message
+#             else:
+#                 error_message = f"No bank details found for user '{user_name}'."
+#                 return error_message
+
+#     # If the user is not found, return an error message
+#     if not user_found:
+#         error_message = f"No user found with the name '{user_name}'."
+#         return error_message
+
+def self_transfer(user_name, amount, from_account, to_account):
+    # Load the data from the JSON variable or initialize if not available
+    if 'json_data' not in globals():
+        json_data = {"users": []}
+    else:
+        json_data = globals()['json_data']
+
+    # Find the user with the given user name
+    user_found = False
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            user_found = True
+            bank_details = user.get('bank_details')
+
+            # Check if bank details are available for the user
+            if bank_details:
+                accounts = bank_details.get('accounts')
+
+                # Check if accounts are available for the user
+                if accounts:
+                    from_account_details = None
+                    to_account_details = None
+
+                    # Find the source and destination account details
+                    for account in accounts:
+                        if account['account_name'] == from_account:
+                            from_account_details = account
+                        elif account['account_name'] == to_account:
+                            to_account_details = account
+
+                    # Check if both account details are found
+                    if from_account_details and to_account_details:
+                        from_balance = from_account_details.get('balance')
+
+                        # Check if balance is available and sufficient for the transfer
+                        if from_balance is not None and isinstance(from_balance, (int, float)):
+                            if amount > 0 and amount <= from_balance:
+                                # Deduct the amount from the source account
+                                from_account_details['balance'] -= amount
+
+                                # Add the amount to the destination account
+                                to_account_details['balance'] += amount
+
+                                # Update the JSON data
+                                globals()['json_data'] = json_data
+
+                                # Calculate remaining balance in the source account
+                                remaining_balance = from_account_details['balance']
+
+                                # Prepare the response variables
+                                success_message = f"Successfully transferred amount {amount} from '{from_account}' to '{to_account}' of {user_name}."
+                                remaining_balance_message = f"Remaining balance in '{from_account}' is: {remaining_balance}"
+
+                                # Return the response variables
+                                return success_message, remaining_balance_message
+                            else:
+                                error_message = "Invalid amount. The amount must be positive and less than or equal to the available balance."
+                                return error_message
+                        else:
+                            error_message = "Invalid balance. The balance must be a numeric value."
+                            return error_message
+                    else:
+                        error_message = f"Either the source account '{from_account}' or destination account '{to_account}' is not found."
+                        return error_message
+                else:
+                    error_message = f"No accounts found for user '{user_name}'."
+                    return error_message
+            else:
+                error_message = f"No bank details found for user '{user_name}'."
+                return error_message
+
+    # If the user is not found, return an error message
+    if not user_found:
+        error_message = f"No user found with the name '{user_name}'."
+        return error_message
+
+
+
+def retrieve_subuser_details(sub_user_name, amount):
+    # Load the data from the JSON variable or initialize if not available
+    if 'json_data' not in globals():
+        json_data = {"users": []}
+    else:
+        json_data = globals()['json_data']
+
+    # Search for the subuser with the given subuser name
+    sub_user_details = {}
+    for user in json_data['users']:
+        sub_users = user.get('sub_users', [])
+        for sub_user in sub_users:
+            if sub_user['sub_user_name'] == sub_user_name:
+                if 'bank_details' in sub_user:
+                    bank_details = sub_user['bank_details']
+                    if 'account_number' in bank_details:
+                        sub_user_details['Account Number'] = bank_details['account_number']
+                    if 'mobile_number' in bank_details:
+                        sub_user_details['Mobile Number'] = bank_details['mobile_number']
+                    if 'bank' in bank_details:
+                        sub_user_details['Bank'] = bank_details['bank']
+                    if 'ifsc_code' in bank_details:
+                        sub_user_details['IFSC Code'] = bank_details['ifsc_code']
+                    break
+
+    # If subuser details are found, return them
+    if sub_user_details:
+        return sub_user_details
+    else:
+        return {"error": f"No subuser found with the name '{sub_user_name}'."}
+
+
+def transfer_money_within_user(user_name, sub_user_name, amount):
+    # Load the data from the JSON variable or initialize if not available
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {
+            "users": []
+        }
+
+    # Search for the sender and recipient based on the names
+    matched_senders = []
+    matched_recipients = []
+
+    for user in json_data['users']:
+        if user['user_name'].lower().startswith(user_name.lower()):
+            matched_senders.append(user['user_name'])
+
+    if not sub_user_name:
+        if len(matched_senders) == 1:
+            recipient = matched_senders[0]  # Assign the sender as the recipient
+        else:
+            similar_senders = difflib.get_close_matches(user_name, [user['user_name'] for user in json_data['users']])
+
+            if similar_senders:
+                message = f"The users with similar names to '{user_name}' are:"
+                similar_senders_message = similar_senders
+                return message, similar_senders_message
+            else:
+                message = f"There are {len(matched_senders)} users with a similar name as the sender: {', '.join(matched_senders)}."
+                recipient_error_message = f"Please provide a more specific name for the recipient."
+                return message, recipient_error_message
+    else:
+        recipient = None
+        similar_sub_users = []
+        for user in json_data['users']:
+            sub_users = user.get('sub_users', [])
+            for sub_user in sub_users:
+                if sub_user['sub_user_name'].lower().startswith(sub_user_name.lower()):
+                    similar_sub_users.append(sub_user['sub_user_name'])
+                    if recipient:
+                        continue
+                    recipient = sub_user
+
+        if not recipient:
+            recipient_error_message = f"No sub user found with the name '{sub_user_name}' under user '{user_name}'."
+            return recipient_error_message
+
+        if len(similar_sub_users) > 1:
+            response = f"There are {len(similar_sub_users)} beneficiaries with a similar name as the recipient: {similar_sub_users}"
+            result = response
+
+            return result
+
+    # Continue with the rest of the code to perform the money transfer
+    # ...
+
+    # Load the data from the JSON variable
+    users = json_data
+
+    # Search for the user and sub user
+    for user in users['users']:
+        if user['user_name'] == user_name:
+            sub_users = user.get('sub_users', [])
+            # Search for the sub user based on the name
+            for sub_user in sub_users:
+                if sub_user['sub_user_name'] == sub_user_name:
+                    user_balance = user['bank_details']['balance']
+                    # Check if the user has sufficient balance
+                    if user_balance >= amount:
+                        # Update the sub user balance
+                        sub_user['bank_details']['balance'] += amount
+
+                        # Update the user balance
+                        user['bank_details']['balance'] -= amount
+
+                        message = f"Money transferred successfully from user '{user_name}' to beneficiary '{sub_user_name}'."
+                        remaining_balance = f"Remaining balance is {user['bank_details']['balance']}"
+                        return message, remaining_balance
+                    else:
+                        error_message = f"Insufficient balance in user '{user_name}' to transfer the amount."
+                        current_balance = user['bank_details']['balance']
+                        return error_message, current_balance
+
+    # If user or sub user not found, return an error message
+    error_message = f"No beneficiary found with the name '{sub_user_name}' under user '{user_name}'."
+    return error_message
+
+
+
+import difflib
+
+def get_similar_sub_users(user_name, sub_user_name):
+    # Load the data from the JSON variable or initialize if not available
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {
+            "users": []
+        }
+
+    matched_users = []
+    similar_sub_users = []
+
+    for user in json_data['users']:
+        if user['user_name'].lower().startswith(user_name.lower()):
+            matched_users.append(user)
+
+    for user in matched_users:
+        sub_users = user.get('sub_users', [])
+        for sub_user in sub_users:
+            if sub_user['sub_user_name'].lower().startswith(sub_user_name.lower()):
+                similar_sub_users.append(sub_user['sub_user_name'])
+
+    if len(similar_sub_users) > 1:
+        response = f"There are {len(similar_sub_users)} beneficiaries with a similar name as the recipient: {similar_sub_users}, please enter any one beneficiary name."
+        result = {response}
+
+
+        return response
+
+    return {
+        "error": f"No sub user found with the name '{sub_user_name}' under user '{user_name}'."
+    }
+
+
+def create_new_sub_user(user_name, sub_user_name, account_number, mobile_number, bank, ifsc_code):
+    # Load the data from the JSON variable or initialize if not available
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {"users": []}
+
+    # Search for the user based on the name
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            sub_users = user.get('sub_users', [])
+
+            # Validate the sub user based on the name and account number
+            if any(sub_user['sub_user_name'] == sub_user_name or sub_user['bank_details']['account_number'] == account_number for sub_user in sub_users):
+                return {"error": "Sub user with the same name or account number already exists."}
+
+            # Create the new sub user
+            new_sub_user = {
+                'sub_user_id': f"SB00{len(sub_users) + 1}",
+                'sub_user_name': sub_user_name,
+                'bank_details': {
+                    'account_number': account_number,
+                    'balance': 0,
+                    'mobile_number': mobile_number,
+                    'bank': bank,
+                    'ifsc_code': ifsc_code
+                }
+            }
+            sub_users.append(new_sub_user)
+
+            return f"New Beneficiary '{sub_user_name}' added successfully under'{user_name}'."
+
+    # If user not found, return an error message
+    return  f"No user found with the name '{user_name}'."
+            
+def transfer_money_between_users(sender_user_name, recipient_user_name, amount):
+    # Load the data from the JSON variable
+    users = json_data
+
+    # Search for the sender user and recipient user
+    sender_user = None
+    recipient_user = None
+
+    for user in users['users']:
+        if user['user_name'] == sender_user_name:
+            sender_user = user
+        elif user['user_name'] == recipient_user_name:
+            recipient_user = user
+
+    # Check if both sender user and recipient user are found
+    if sender_user and recipient_user:
+        sender_user_balance = sender_user['bank_details']['balance']
+
+        # Check if the sender user has sufficient balance
+        if sender_user_balance >= amount:
+            # Update the sender user balance
+            sender_user['bank_details']['balance'] -= amount
+
+            # Update the recipient user balance
+            recipient_user['bank_details']['balance'] += amount
+
+            message = f"Money transferred successfully from user '{sender_user_name}' to user '{recipient_user_name}'."
+            remaining_balance = f"Remaining balance is {sender_user['bank_details']['balance']}"
+            return message, remaining_balance
+        else:
+            # If sender user does not have sufficient balance, return an error message
+            error_message = f"Insufficient balance in user '{sender_user_name}' to transfer the amount."
+            current_balance = f"Remaining balance is {sender_user['bank_details']['balance']}, Please enter amount under your balance "
+            return error_message, current_balance
+    else:
+        # If either sender user or recipient user is not found, return an error message
+        if not sender_user:
+            error_message = f"No sender user found with the name '{sender_user_name}'."
+            return error_message
+        if not recipient_user:
+            error_message = f"No recipient user found with the name '{recipient_user_name}'."
+            return error_message
+            
+def purchase_insurance(user_name, insurance_type, coverage_amount):
+    # Load the data from the JSON variable or initialize if not available
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {
+            "users": []
+        }
+
+    # Search for the user based on the name
+    user_found = False
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            user_found = True
+
+            # Check if the user already has insurance of the same type
+            for insurance in user.get('insurances', []):
+                if insurance['type'] == insurance_type:
+                    return {
+                        "error": f"User '{user_name}' already has insurance of type '{insurance_type}'."
+                    }
+
+            # Add the new insurance to the user's profile
+            insurance_data = {
+                "type": insurance_type,
+                "coverage_amount": coverage_amount
+            }
+            user.setdefault('insurances', []).append(insurance_data)
+
+            # Deduct the insurance coverage amount from the user's balance
+            user['bank_details']['balance'] -= coverage_amount
+
+            
+            message = f"Insurance of type '{insurance_type}' purchased successfully for user '{user_name}'",
+            coverage_amount = f"Coverage amount: {coverage_amount}",
+            remaining_balance =f"Remaining Balance is {user['bank_details']['balance']}"
+            
+            return message, coverage_amount, remaining_balance
+            
+
+    # If user not found, return an error message
+    if not user_found:
+        return {
+            "error": f"No user found with the name '{user_name}'."
+        }
+        
+        
+def check_insurance(user_name, insurance_type):
+    # Load the data from the JSON variable or initialize if not available
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {
+            "users": []
+        }
+
+    # Search for the user based on the username
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            insurances = user.get('insurances', [])
+            if any(insurance['type'] == insurance_type for insurance in insurances):
+                return f"{user_name} has already purchased {insurance_type} policy."
+            else:
+                return f"{user_name} has not purchased {insurance_type} policy."
+
+    return f"No user found with the username '{user_name}'."
+    
+
+def weather_function(city):
+    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid=46ee4ba0f1dc426bcc3a1c02e4cf5ab4&units=metric'.format(city)
+    res = requests.get(url)
+    data = res.json()
+
+    temp = data['main']['temp']
+    wind_speed_mps = data['wind']['speed']
+    wind_speed_kmph = wind_speed_mps * 3.6
+    description = data['weather'][0]['description']
+
+    temperature = f"Temperature: {str(temp)} °C ",
+    wind_speed = f" Wind Speed:{str(wind_speed_kmph)} km/hr",
+    weather_condition = f" Weather Condition: {description}"
+
+    return temperature, wind_speed, weather_condition
+
+
+def fetch_cards(card_type, user_name):
+    global json_data
+    if 'json_data' not in globals():
+        json_data = {
+            "users": []
+        }
+    
+    card_numbers = []
+    account_number = None
+    for user in json_data['users']:
+        if user['user_name'] == user_name:
+            account_number = user['bank_details'].get('account_number')
+            if card_type == 'credit':
+                card_number = user['bank_details'].get('credit_card_number')
+            elif card_type == 'debit':
+                card_number = user['bank_details'].get('debit_card_number')
+            if card_number:
+                card_numbers.append(card_number)
+
+    if card_numbers:
+        result = f"I see based on your account number {account_number}, you have the following {card_type} card(s) ending with: {', '.join(card_numbers)}"
+    else:
+        result = f"Error: No {card_type}_card_number cards found for user '{user_name}'."
+    
+    return result 
+    
+  # Define the list to store generated tokens
+
+def generate_token(username, complaint_type):
+    generated_tokens = []
+    # Check if the user has already generated a token
+    if username in generated_tokens:
+        return "Token already generated for this user."
+
+    # Combine the username and complaint type
+    token_string = username + complaint_type
+
+    random_token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+
+    # Create a message with the generated token
+    message = f"Ticket raised for user '{username}' for the complaint '{complaint_type}'. Ticket number: {random_token}"
+
+    # Add the username to the list of generated tokens
+    generated_tokens.append(username)
+
+    # Return the message and the generated token
+    return message
+
+
+    
+
+def main(args):
+    
+    if 'user_name' in args and 'sub_user_name' in args and 'amount' in args:
+        user_name = args.get('user_name')
+        sub_user_name = args.get('sub_user_name')
+        amount = float(args.get('amount'))
+        response = transfer_money_within_user(user_name, sub_user_name, amount)
+    
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(", ", ": "), ensure_ascii=False)
+    
+        # Remove unwanted characters
+        result_text = result_text.replace('"', '').replace("{", "").replace("}", "").replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+        
+    elif 'sub_user_name' in args and 'amount' in args:
+        sub_user_name = args.get('sub_user_name')
+        amount = float(args.get('amount'))
+        response = retrieve_subuser_details(sub_user_name, amount)
+    
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(", ", ": "), ensure_ascii=False)
+    
+        # Remove unwanted characters
+        result_text = result_text.replace('"', '').replace("{", "").replace("}", "").replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+    
+    elif 'sender_user_name' in args and 'recipient_user_name' in args and 'amount' in args:
+        sender_user_name = args.get('sender_user_name')
+        recipient_user_name = args.get('recipient_user_name')
+        amount = float(args.get('amount'))
+        response = transfer_money_between_users(sender_user_name, recipient_user_name, amount)
+    
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(",", ": "), ensure_ascii=False)
+    
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+    
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+    
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+    
+    elif 'user_name' in args and 'sub_user_name' in args and 'account_number' in args and 'mobile_number' in args and 'bank' in args and 'ifsc_code' in args:
+        user_name = args.get('user_name')
+        sub_user_name = args.get('sub_user_name')
+        account_number = args.get('account_number')
+        mobile_number = args.get('mobile_number')
+        bank = args.get('bank')
+        ifsc_code = args.get('ifsc_code')
+        response = create_new_sub_user(user_name, sub_user_name, account_number, mobile_number, bank, ifsc_code)
+    
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(": ", ", "), ensure_ascii=False)
+    
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+    
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+    
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+
+    
+    elif 'user_name' in args and 'amount' in args and 'from_account' in args and 'to_account' in args:
+        user_name = args.get('user_name')
+        amount = float(args.get('amount'))
+        from_account = args.get('from_account')
+        to_account = args.get('to_account')
+        response = self_transfer(user_name, amount, from_account, to_account)
+        
+        # Convert the response to text
+        result_text = json.dumps(response, indent=None, separators=(": ", ", "), ensure_ascii=False)
+        
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+        
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+        
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+        
+        return {
+            "result": result_text
+        }
+        
+        
+    elif 'user_name' in args and 'sub_user_name' in args:
+        user_name = args['user_name']
+        sub_user_name = args['sub_user_name']
+        
+        response = get_similar_sub_users(user_name, sub_user_name)
+        
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(": ", ", "), ensure_ascii=False)
+        
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+        
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+        
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+        
+        return {
+            "result": result_text
+        }
+    
+    elif 'user_name' in args and 'insurance_type' in args and 'coverage_amount' in args:
+        user_name = args.get('user_name')
+        insurance_type = args.get('insurance_type')
+        coverage_amount = float(args.get('coverage_amount'))
+        response = purchase_insurance(user_name, insurance_type, coverage_amount)
+        
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(", ", ": "), ensure_ascii=False)
+        
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+        
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+        
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+        
+        return {
+            "result": result_text
+        }
+        
+    
+    elif 'user_name' in args and 'insurance_type' in args:
+        user_name = args.get('user_name')
+        insurance_type = args.get('insurance_type')
+        response = check_insurance(user_name, insurance_type)
+        
+        if 'error' in response:
+            return {"error": response['error']}
+        else:
+            # Convert the dictionary to text
+            result_text = json.dumps(response, indent=None, separators=(": ", ", "), ensure_ascii=False)
+            
+            # Remove double quotes
+            result_text = result_text.replace('"', '')
+            
+            # Remove curly brackets
+            result_text = result_text.replace("{", "").replace("}", "")
+            
+            # Remove square brackets
+            result_text = result_text.replace("[", "").replace("]", "")
+            
+            # Print the final result
+            print(result_text)
+            
+            return {
+                "result": result_text
+            }
+            
+    elif 'city' in args:
+            city = args.get('city')
+            if city:
+                result = weather_function(city)
+        
+                # Convert the dictionary to text
+                result_text = json.dumps(result, indent=None, separators=(",", ": "), ensure_ascii=False)
+        
+                # Remove double quotes
+                result_text = result_text.replace('"', '')
+        
+                # Remove curly brackets
+                result_text = result_text.replace("{", "").replace("}", "")
+        
+                # Remove square brackets
+                result_text = result_text.replace("[", "").replace("]", "")
+        
+                return {
+                    "result": result_text
+                }
+                
+    elif 'card_type' in args and 'user_name' in args:
+        card_type = args.get('card_type')
+        user_name = args.get('user_name')
+        response = fetch_cards(card_type, user_name)
+    
+        # Convert the dictionary to text
+        result_text = json.dumps(response, indent=None, separators=(", ", ": "), ensure_ascii=False)
+    
+        # Remove unwanted characters
+        result_text = result_text.replace('"', '').replace("{", "").replace("}", "").replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+        
+    elif 'user_name' in args and 'complaint_type' in args:
+        user_name = args.get('user_name')
+        complaint_type = args.get('complaint_type')
+        response = generate_token(user_name, complaint_type)
+          
+        result_text = json.dumps(response, indent=None, separators=(", ", ": "), ensure_ascii=False)
+    
+        # Remove unwanted characters
+        result_text = result_text.replace('"', '').replace("{", "").replace("}", "").replace("[", "").replace("]", "")
+    
+        return {
+            "result": result_text
+        }
+         
+ 
+    
+    elif 'user_name' in args:
+        user_name = args.get('user_name')
+        result = view_updated_data(user_name)
+        
+        # Convert the result to text
+        result_text = json.dumps(result, indent=None, separators=(", ", ": "), ensure_ascii=False)
+        
+        # Remove double quotes
+        result_text = result_text.replace('"', '')
+        
+        # Remove curly brackets
+        result_text = result_text.replace("{", "").replace("}", "")
+        
+        # Remove square brackets
+        result_text = result_text.replace("[", "").replace("]", "")
+        
+        return {
+            "result": result_text
+        }
+
+    else:
+        return {"error": "Invalid input data."}
